@@ -22,8 +22,6 @@ vim.g.mapleader = " "
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
 	spec = {
-		-- add your plugins here
-		-- lazy.nvim
 		{
 			'nvim-treesitter/nvim-treesitter-context',
 			opts = {
@@ -41,7 +39,6 @@ require("lazy").setup({
 				ensure_installed = { 'stylua' },
 			},
         },
-        -- lazy.nvim
         {
             'mfussenegger/nvim-jdtls',
             ft = 'java',
@@ -161,101 +158,151 @@ require("lazy").setup({
                 return vim.fn.executable("make") == 1
             end
         },
-        { 'rebelot/kanagawa.nvim' }
+        { 'rebelot/kanagawa.nvim' },
+        {
+            "hrsh7th/nvim-cmp",
+            dependencies = {
+                "hrsh7th/cmp-nvim-lsp",
+            },
+            config = function()
+                local cmp = require("cmp")
+                cmp.setup({
+                    sources = {
+                        { name = "nvim_lsp" },
+                    },
+                    mapping = cmp.mapping.preset.insert({
+                        ["<Tab>"] = cmp.mapping.select_next_item(),
+                        ["<S-Tab>"] = cmp.mapping.select_prev_item(),
+                        ["<CR>"] = cmp.mapping.confirm({ select = true }),
+                    }),
+                })
+            end,
+        },
+        {
+            "ThePrimeagen/harpoon",
+            branch = "harpoon2",
+            dependencies = { "nvim-lua/plenary.nvim" },
+            config = function()
+                local harpoon = require("harpoon")
+                harpoon:setup()
 
-    } 
-})
+                vim.keymap.set("n", "<leader>a", function() harpoon:list():add() end)
+                vim.keymap.set("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end)
 
-vim.cmd('colorscheme kanagawa')
--- Preferences
-vim.opt.number = true
-vim.opt.relativenumber = true
-vim.opt.foldenable = false
-vim.opt.foldmethod = 'manual'
-vim.opt.foldlevelstart = 99
-vim.opt.wrap = false
-vim.opt.cmdheight = 1
+                vim.keymap.set("n", "<leader>&", function() harpoon:list():select(1) end)
+                vim.keymap.set("n", "<leader>é", function() harpoon:list():select(2) end)
+                vim.keymap.set("n", "<leader>\"", function() harpoon:list():select(3) end)
+                vim.keymap.set("n", "<leader>'", function() harpoon:list():select(4) end)           
+                end,
+            },
 
-vim.opt.shiftwidth = 4
-vim.opt.softtabstop = 4
-vim.opt.tabstop = 4
-vim.opt.expandtab = true
-vim.opt.smarttab = true
-vim.opt.wildignore = '.hg,.svn,*~,*.png,*.jpg,*.gif,*.min.js,*.swp,*.o,vendor,dist,_site'
+        } 
+    })
 
-vim.opt.scrolloff = 2
--- more useful diffs (nvim -d)
---- by ignoring whitespace
-vim.opt.diffopt:append('iwhite')
---- and using a smarter algorithm
---- https://vimways.org/2018/the-power-of-diff/
---- https://stackoverflow.com/questions/32365271/whats-the-difference-between-git-diff-patience-and-git-diff-histogram
---- https://luppeng.wordpress.com/2020/10/10/when-to-use-each-of-the-git-diff-algorithms/
-vim.opt.diffopt:append('algorithm:histogram')
-vim.opt.diffopt:append('indent-heuristic')
--- show a column at 80 characters as a guide for long lines
-vim.opt.colorcolumn = '80'
+    vim.cmd('colorscheme kanagawa')
+    -- Preferences
+    vim.opt.number = true
+    vim.opt.relativenumber = true
+    vim.opt.foldenable = false
+    vim.opt.foldmethod = 'manual'
+    vim.opt.foldlevelstart = 99
+    vim.opt.wrap = false
+    vim.opt.cmdheight = 1
 
-vim.opt.listchars = 'tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•' 
-vim.keymap.set('n', '<leader>,', ':set invlist<cr>')
+    vim.opt.shiftwidth = 4
+    vim.opt.softtabstop = 4
+    vim.opt.tabstop = 4
+    vim.opt.expandtab = true
+    vim.opt.smarttab = true
+    vim.opt.wildignore = '.hg,.svn,*~,*.png,*.jpg,*.gif,*.min.js,*.swp,*.o,vendor,dist,_site'
 
--- case-insensitive search/replace
-vim.opt.ignorecase = true
--- unless uppercase in search term
-vim.opt.smartcase = true
+    vim.opt.scrolloff = 2
+    -- more useful diffs (nvim -d)
+    --- by ignoring whitespace
+    vim.opt.diffopt:append('iwhite')
+    --- and using a smarter algorithm
+    --- https://vimways.org/2018/the-power-of-diff/
+    --- https://stackoverflow.com/questions/32365271/whats-the-difference-between-git-diff-patience-and-git-diff-histogram
+    --- https://luppeng.wordpress.com/2020/10/10/when-to-use-each-of-the-git-diff-algorithms/
+    vim.opt.diffopt:append('algorithm:histogram')
+    vim.opt.diffopt:append('indent-heuristic')
+    -- show a column at 80 characters as a guide for long lines
+    vim.opt.colorcolumn = '80'
 
---" Decent wildmenu
--- in completion, when there is more than one match,
--- list all matches, and only complete to longest common match
-vim.opt.wildmode = 'list:longest'
+    vim.opt.listchars = 'tab:^ ,nbsp:¬,extends:»,precedes:«,trail:•' 
+    vim.keymap.set('n', '<leader>,', ':set invlist<cr>')
 
-vim.keymap.set('v', '<C-h>', '<cmd>nohlsearch<cr>')
-vim.keymap.set('n', '<C-h>', '<cmd>nohlsearch<cr>')
--- Jump to start and end of line using the home row keys
-vim.keymap.set('', 'H', '^')
-vim.keymap.set('', 'L', '$')
-vim.keymap.set('', 'R', ':%s/')
+    -- case-insensitive search/replace
+    vim.opt.ignorecase = true
+    -- unless uppercase in search term
+    vim.opt.smartcase = true
 
--- let the left and right arrows be useful: they can switch buffers
-vim.keymap.set('n', '<left>', ':bp<cr>')
-vim.keymap.set('n', '<right>', ':bn<cr>')
+    --" Decent wildmenu
+    -- in completion, when there is more than one match,
+    -- list all matches, and only complete to longest common match
+    vim.opt.wildmode = 'list:longest'
 
--- handy keymap for replacing up to next _ (like in variable names)
-vim.keymap.set('n', '<leader>m', 'ct_')
--- F1 is pretty close to Esc, so you probably meant Esc
-vim.keymap.set('', '<F1>', '<Esc>')
-vim.keymap.set('i', '<F1>', '<Esc>')
-vim.api.nvim_set_keymap('n', '<C-f>', ':sus<CR>', { noremap = true, silent = true })
+    vim.keymap.set('v', '<C-h>', '<cmd>nohlsearch<cr>')
+    vim.keymap.set('n', '<C-h>', '<cmd>nohlsearch<cr>')
+    -- Jump to start and end of line using the home row keys
+    vim.keymap.set('', 'H', '^')
+    vim.keymap.set('', 'L', '$')
+    vim.keymap.set('', 'R', ':%s/')
 
-vim.keymap.set("n", "gd", vim.lsp.buf.definition)
-vim.keymap.set("n", "K", vim.lsp.buf.hover)
-vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
+    -- let the left and right arrows be useful: they can switch buffers
+    vim.keymap.set('n', '<left>', ':bp<cr>')
+    vim.keymap.set('n', '<right>', ':bn<cr>')
 
-vim.keymap.set('n', '<leader><leader>', function()
-    local alt = vim.fn.bufnr('#')
-    local alt_name = vim.fn.bufname(alt)
+    -- handy keymap for replacing up to next _ (like in variable names)
+    vim.keymap.set('n', '<leader>m', 'ct_')
+    -- F1 is pretty close to Esc, so you probably meant Esc
+    vim.keymap.set('', '<F1>', '<Esc>')
+    vim.keymap.set('i', '<F1>', '<Esc>')
+    vim.api.nvim_set_keymap('n', '<C-f>', ':sus<CR>', { noremap = true, silent = true })
 
-    if alt ~= -1 and vim.fn.buflisted(alt) == 1 and alt_name ~= '' and vim.fn.isdirectory(alt_name) == 0 then
-        vim.cmd('buffer #')
-        return
-    end
+    vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+    vim.keymap.set("n", "K", vim.lsp.buf.hover)
+    vim.keymap.set("n", "<leader>rn", vim.lsp.buf.rename)
+    vim.keymap.set("n", "<leader>ep", vim.diagnostic.goto_prev)
+    vim.keymap.set("n", "<leader>en", vim.diagnostic.goto_next)
 
-    -- fallback: find most recent file buffer
-    for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
-        if buf.bufnr ~= vim.fn.bufnr('%') and buf.name ~= '' and vim.fn.isdirectory(buf.name) == 0 then
-            vim.cmd('buffer ' .. buf.bufnr)
+    vim.keymap.set('n', '<leader><leader>', function()
+        local alt = vim.fn.bufnr('#')
+        local alt_name = vim.fn.bufname(alt)
+
+        if alt ~= -1 and vim.fn.buflisted(alt) == 1 and alt_name ~= '' and vim.fn.isdirectory(alt_name) == 0 then
+            vim.cmd('buffer #')
             return
         end
-    end
 
-    vim.notify('No alternate file', vim.log.levels.INFO)
-end)
+        -- fallback: find most recent file buffer
+        for _, buf in ipairs(vim.fn.getbufinfo({ buflisted = 1 })) do
+            if buf.bufnr ~= vim.fn.bufnr('%') and buf.name ~= '' and vim.fn.isdirectory(buf.name) == 0 then
+                vim.cmd('buffer ' .. buf.bufnr)
+                return
+            end
+        end
+
+        vim.notify('No alternate file', vim.log.levels.INFO)
+    end)
 
 
 
--- Autocommands
--- Load where you left off
-vim.api.nvim_create_autocmd("BufReadPost", {
-    pattern = "*",
-    command = 'silent! normal! g`"'
-})
+    -- Autocommands
+    -- Load where you left off
+    vim.api.nvim_create_autocmd("BufReadPost", {
+        pattern = "*",
+        command = 'silent! normal! g`"'
+    })
+
+
+    vim.diagnostic.config({
+        virtual_text = true,      -- inline text at end of line
+        signs = true,             -- signs in gutter
+        underline = true,         -- underline errors
+        update_in_insert = false, -- don't update while typing
+        float = { border = "rounded" },
+    })
+
+    -- Optional: faster CursorHold (default 4000ms)
+    vim.opt.updatetime = 250
