@@ -195,7 +195,66 @@ require("lazy").setup({
                 vim.keymap.set("n", "<leader>'", function() harpoon:list():select(4) end)           
                 end,
             },
-
+            {
+                "mfussenegger/nvim-dap",
+                lazy = true,
+                keys = {
+                    {
+                        "<leader>db",
+                        function() require("dap").toggle_breakpoint() end,
+                    },
+                    {
+                        "<leader>dc",
+                        function() require("dap").continue() end,
+                    },
+                    {
+                        "<leader>dC",
+                        function() require("dap").run_to_cursor() end,
+                    },
+                    {
+                        "<leader>ds",
+                        function() require("dap").terminate() end,
+                    }
+                }
+            },
+            -- lua/plugins/dap-go.lua (or wherever you define specs)
+            {
+                "leoluz/nvim-dap-go",
+                dependencies = { "mfussenegger/nvim-dap" },
+                ft = "go",
+                config = function()
+                    require("dap-go").setup({
+                        dap_configurations = {
+                            {
+                                type = "go",
+                                name = "Debug with args",
+                                request = "launch",
+                                program = "${file}",
+                                -- args = { "--verbose" },
+                            },
+                        },
+                    })
+                end,
+            },
+            {
+                "rcarriga/nvim-dap-ui",
+                lazy = true,
+                keys = {
+                    {
+                        "<leader>du",
+                        function()
+                            require("dapui").toggle({})
+                        end,
+                        desc = "Dap UI"
+                    },
+                },
+                dependencies = {
+                    "mfussenegger/nvim-dap",
+                    "leoluz/nvim-dap-go",
+                    "nvim-neotest/nvim-nio",
+                    "theHamsta/nvim-dap-virtual-text",
+                },
+            }
         } 
     })
 
@@ -285,8 +344,6 @@ require("lazy").setup({
 
         vim.notify('No alternate file', vim.log.levels.INFO)
     end)
-
-
 
     -- Autocommands
     -- Load where you left off
